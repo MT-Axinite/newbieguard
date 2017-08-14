@@ -55,7 +55,6 @@ minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch, 
 		minetest.debug("Not hitting "..playername.." - age is "..tostring(newbie_stats.age))
 		return true
 	end
-	minetest.debug("Die, scum !")
 end)
 
 -- =====================
@@ -75,7 +74,6 @@ minetest.register_globalstep(function(dtime)
 					newplayers[playername] = nil
 					minetest.chat_send_player(playername, warn_message)
 				else
-					minetest.debug(playername.." is now "..tostring(player_stats.age).." seconds old")
 					newplayers[playername].age = player_stats.age + step_increment
 				end
 			end
