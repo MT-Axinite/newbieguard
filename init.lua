@@ -94,9 +94,20 @@ end)
 -- =============
 -- Joining and advising
 
+local function time_remaining(playername)
+	local time_s = defense_age - math.ceil(newplayers[playername].age)
+
+	remain_s = time_s % 60
+	local remain_m = (time_s - remain_s ) / 60
+
+	local str_remain = tostring(remain_m).."min, "..tostring(remain_s).."sec"
+
+	return str_remain
+end
+
 local function advise_newbie(playername)
 	if newplayers[playername] then
-		minetest.chat_send_player(playername, "You have "..tostring(defense_age - math.ceil(newplayers[playername].age) ).." seconds of newbie immunity left.")
+		minetest.chat_send_player(playername, "You have "..time_remaining(playername).." seconds of newbie immunity left.")
 	end
 end
 
