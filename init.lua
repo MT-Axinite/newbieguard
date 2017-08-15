@@ -107,7 +107,7 @@ end
 
 local function advise_newbie(playername)
 	if newplayers[playername] then
-		minetest.chat_send_player(playername, "You have "..time_remaining(playername).." seconds of newbie immunity left.")
+		minetest.chat_send_player(playername, "Immune Newbie Time: "..time_remaining(playername))
 	end
 end
 
