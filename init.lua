@@ -1,4 +1,5 @@
 -- newbieguard - a mode for Minetest
+
 -- (C) 2017 Tai "DuCake" Kedzierski
 -- Provided under the terms of the GNU Lesser General Public License v3.0, or later versions thereof.
 
@@ -48,11 +49,15 @@ minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch, 
 
 	if not hitter:is_player() then return end
 
+	local hittername = hitter:get_player_name()
+
 	local playername = player:get_player_name()
 	local newbie_stats = newplayers[playername]
 
 	if newbie_stats and newbie_stats.age < defense_age then
-		minetest.debug("Not hitting "..playername.." - age is "..tostring(newbie_stats.age))
+		minetest.chat_send_player(hittername, playername.." is still new, don't hit them.")
+		-- TODO register hitter's time, hit them back if they persist 
+		--minetest.debug("Not hitting "..playername.." - age is "..tostring(newbie_stats.age))
 		return true
 	end
 end)
