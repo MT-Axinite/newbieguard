@@ -93,6 +93,7 @@ minetest.register_globalstep(function(dtime)
 
 	if save_increment > 10 then
 		save_newbies()
+		save_increment = 0
 	end
 end)
 
