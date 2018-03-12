@@ -5,14 +5,21 @@
 
 newplayers = {}
 
-local defense_age = tonumber(minetest.setting_get("newbieguard.defense_age") or 20) * 60 -- 20 minutes default
-local step_period = tonumber(minetest.setting_get("newbieguard.step_period") or 2) -- default, increment every 2 seconds
+local defense_age = tonumber(minetest.setting_get("newbieguard.defense_age") or 10) * 60 -- 20 min
+local step_period = tonumber(minetest.setting_get("newbieguard.step_period") or 2) -- 2 sec
+local save_interval = tonumber(minetest.setting_get("newbieguard.save_interval") or 10) -- 10 sec
 
-local join_message = minetest.setting_get("newbieguard.onjoin") or "Welcome ! You are immune to PvP as a newbie."
-local warn_message = minetest.setting_get("newbieguard.warning") or "Beware ! You are no logner immune to PvP !"
+local message = {}
+message.join = minetest.setting_get("newbieguard.onjoin") or "Welcome ! You are immune to PvP as a newbie."
+message.warn = minetest.setting_get("newbieguard.warning") or "Beware ! You are no logner immune to PvP !"
+message.playnice = minetest.setting_get("newbieguard.playnice") or "Since you cannot be attacked, you cannot attack either."
+message.theyrenew = minetest.setting_get("newbieguard.theyrenew") or " is still new, don't hit them."
 
 local step_increment = 0
 local save_increment = 0
+
+-- ====================
+-- Data persistence
 
 local newbiesfile = minetest.get_worldpath().."/newbies.ser"
 
@@ -51,11 +58,18 @@ minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch, 
 
 	local hittername = hitter:get_player_name()
 
-	local playername = player:get_player_name()
-	local newbie_stats = newplayers[playername]
+	-- Impudent newbie !
+	if newplayers[hitter_name] then
+		minetest.chat_send_player(hittername, message.playnice)
+		return true
+	end
 
+	local playername = player:get_player_name()
+
+	-- Newbie under attack ?
+	local newbie_stats = newplayers[playername]
 	if newbie_stats and newbie_stats.age < defense_age then
-		minetest.chat_send_player(hittername, playername.." is still new, don't hit them.")
+		minetest.chat_send_player(hittername, playername..message.theyrenew)
 		-- TODO register hitter's time, hit them back if they persist 
 		--minetest.debug("Not hitting "..playername.." - age is "..tostring(newbie_stats.age))
 		return true
@@ -77,7 +91,7 @@ minetest.register_globalstep(function(dtime)
 			if player_stats then
 				if player_stats.age > defense_age then
 					newplayers[playername] = nil
-					minetest.chat_send_player(playername, warn_message)
+					minetest.chat_send_player(playername, message.warn)
 				else
 					newplayers[playername].age = player_stats.age + step_increment
 				end
@@ -91,7 +105,7 @@ end)
 minetest.register_globalstep(function(dtime)
 	save_increment = save_increment + dtime
 
-	if save_increment > 10 then
+	if save_increment > save_interval then
 		save_newbies()
 		save_increment = 0
 	end
@@ -122,7 +136,7 @@ minetest.register_on_newplayer(function(player)
 
 	newplayers[playername] = {age = 0}
 
-	minetest.chat_send_player(playername, join_message)
+	minetest.chat_send_player(playername, message.join)
 	advise_newbie(playername)
 end)
 
